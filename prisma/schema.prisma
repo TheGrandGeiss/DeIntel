@@ -1,0 +1,44 @@
+generator client {
+  provider        = "prisma-client-js"
+  output = "./generated/prisma/client"
+}
+
+datasource db {
+  provider  = "postgresql"
+}
+
+model User {
+  id            String   @id @default(cuid())
+  walletAddress String   @unique
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  reports       Report[] 
+}
+
+model Report {
+  id                String   @id @default(cuid())
+  
+  authorId          String   
+  author            User     @relation(fields: [authorId], references: [id])
+  signature         String?  @db.Text 
+  
+  projectName       String
+  ticker            String
+  category          String
+  executiveSummary  String   @db.Text
+  
+  trustScore        Int      // 👈 FIXED: Changed from String to Int to match the AI and the code
+  riskLevel         String
+  
+  catalysts         String[] // Note: String[] works perfectly if you are using PostgreSQL!
+  greenFlags        String[]
+  redFlags          String[]
+  
+  security          Json     
+  teamAndBackers    Json     
+  tokenomics        Json     
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
