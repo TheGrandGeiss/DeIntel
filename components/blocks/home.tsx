@@ -11,7 +11,7 @@ export default function Home() {
       <div className='absolute bottom-[-10%] right-[-10%] w-150 h-150 bg-blue-600/10 rounded-full blur-[150px] pointer-events-none' />
 
       {/* Main Search Area */}
-      <div className='z-10 w-full flex justify-center'>
+      <div className='w-full flex justify-center'>
         <Search />
       </div>
     </main>

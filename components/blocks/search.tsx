@@ -87,7 +87,7 @@ const Search = () => {
 
       {/* Deep AI Loading Screen */}
       {isLoading && (
-        <div className='fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/80 backdrop-blur-lg animate-in fade-in duration-300'>
+        <div className='fixed inset-0  flex flex-col items-center justify-center bg-black/80 backdrop-blur-lg animate-in fade-in duration-300'>
           <div className='relative flex items-center justify-center'>
             {/* Pulsing ring */}
             {/* <div className='absolute w-24 h-24 border-2 border-zinc-700 rounded-full animate-ping'></div> */}
