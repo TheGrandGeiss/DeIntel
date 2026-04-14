@@ -208,7 +208,7 @@ export async function POST(request: Request) {
 
     const savedReport = await prisma.report.create({
       data: {
-        authorId: userId, // Tied perfectly to the logged-in user
+        authorId: userId,
         projectName: finalReport.project_name,
         ticker: finalReport.ticker,
         category: finalReport.category,
@@ -221,6 +221,7 @@ export async function POST(request: Request) {
         security: finalReport.security,
         teamAndBackers: finalReport.team_and_backers,
         tokenomics: finalReport.tokenomics,
+        teamIsDoxxed: finalReport.teamIsDoxxed,
       },
     });
 
