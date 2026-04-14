@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { Syne, DM_Mono, Inter } from 'next/font/google';
 import {
   ShieldCheck,
   AlertTriangle,
@@ -14,6 +15,22 @@ import {
   Clock,
   Fingerprint,
 } from 'lucide-react';
+
+// Configure Next.js fonts
+const syne = Syne({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800'],
+});
+
+const dmMono = DM_Mono({
+  subsets: ['latin'],
+  weight: ['300', '400', '500'],
+});
+
+const inter = Inter({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600'],
+});
 
 export default function ReportDashboard({ data }: { data: any }) {
   const [showSignature, setShowSignature] = useState(false);
@@ -46,218 +63,41 @@ export default function ReportDashboard({ data }: { data: any }) {
   const scoreColor = getScoreColor(data.trustScore);
   const riskColor = getRiskColor(data.riskLevel);
 
+  // SVG Noise Texture for the cards
+  const noiseImage = `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E")`;
+
   return (
     <div
-      style={{
-        minHeight: '100vh',
-        background: '#080D1A',
-        color: '#E2E8F0',
-        padding: '2.5rem 1.5rem',
-        fontFamily: "'Syne', 'Plus Jakarta Sans', system-ui, sans-serif",
-      }}>
-      {/* Font imports */}
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@300;400;500&family=Inter:wght@300;400;500;600&display=swap');
-
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        .rdb-body { font-family: 'Inter', sans-serif; }
-        .rdb-mono { font-family: 'DM Mono', monospace; }
-        .rdb-display { font-family: 'Syne', sans-serif; }
-
-        .rdb-card {
-          background: #0F1928;
-          border: 0.5px solid rgba(255,255,255,0.06);
-          border-radius: 16px;
-        }
-
-        .rdb-card-elevated {
-          background: #131F30;
-          border: 0.5px solid rgba(255,255,255,0.08);
-          border-radius: 16px;
-        }
-
-        .rdb-label {
-          font-family: 'DM Mono', monospace;
-          font-size: 10px;
-          font-weight: 400;
-          letter-spacing: 0.18em;
-          text-transform: uppercase;
-          color: #4A6080;
-        }
-
-        .rdb-alloc-bar > div {
-          transition: opacity 0.2s ease;
-        }
-        .rdb-alloc-bar > div:hover {
-          opacity: 1 !important;
-          filter: brightness(1.15);
-        }
-
-        .rdb-flag-item {
-          display: flex;
-          align-items: flex-start;
-          gap: 10px;
-          padding: 10px 0;
-          border-bottom: 0.5px solid rgba(255,255,255,0.04);
-          font-family: 'Inter', sans-serif;
-          font-size: 14px;
-          line-height: 1.55;
-          color: #C8D8E8;
-        }
-        .rdb-flag-item:last-child { border-bottom: none; }
-
-        .rdb-catalyst-item {
-          display: flex;
-          align-items: flex-start;
-          gap: 12px;
-          padding: 12px 0;
-          border-bottom: 0.5px solid rgba(255,255,255,0.04);
-          font-family: 'Inter', sans-serif;
-          font-size: 14px;
-          line-height: 1.55;
-          color: #C8D8E8;
-        }
-        .rdb-catalyst-item:last-child { border-bottom: none; }
-
-        .rdb-utility-tag {
-          padding: 5px 14px;
-          background: #0A1020;
-          border: 0.5px solid rgba(255,255,255,0.07);
-          border-radius: 100px;
-          font-family: 'DM Mono', monospace;
-          font-size: 11px;
-          font-weight: 400;
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
-          color: #7A9BB8;
-        }
-
-        .rdb-sig-badge {
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          padding: 5px 12px;
-          background: rgba(52,211,153,0.07);
-          border: 0.5px solid rgba(52,211,153,0.18);
-          border-radius: 100px;
-          cursor: pointer;
-          transition: background 0.2s;
-          font-family: 'DM Mono', monospace;
-          font-size: 10px;
-          font-weight: 500;
-          letter-spacing: 0.12em;
-          text-transform: uppercase;
-          color: #34D399;
-        }
-        .rdb-sig-badge:hover { background: rgba(52,211,153,0.12); }
-
-        .rdb-divider {
-          border: none;
-          border-top: 0.5px solid rgba(255,255,255,0.05);
-        }
-
-        /* Noise texture overlay on cards */
-        .rdb-card::before, .rdb-card-elevated::before {
-          content: '';
-          position: absolute;
-          inset: 0;
-          border-radius: inherit;
-          pointer-events: none;
-          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
-          opacity: 0.4;
-        }
-      `}</style>
-
-      <div
-        style={{
-          maxWidth: 1160,
-          margin: '0 auto',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '1.75rem',
-        }}>
+      className={`min-h-screen bg-[#080D1A] text-[#E2E8F0] px-6 pt-32 pb-10 ${inter.className}`}>
+      <div className='max-w-[1160px] mx-auto flex flex-col gap-7'>
         {/* ── HEADER ─────────────────────────────────────────────────── */}
-        <header
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            justifyContent: 'space-between',
-            alignItems: 'flex-start',
-            gap: '1.5rem',
-            paddingBottom: '1.75rem',
-            borderBottom: '0.5px solid rgba(255,255,255,0.05)',
-          }}>
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '0.85rem',
-            }}>
+        <header className='flex flex-wrap justify-between items-start gap-6 pb-7 border-b border-white/5'>
+          <div className='flex flex-col gap-3.5'>
             {/* Title row */}
-            <div
-              style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                alignItems: 'center',
-                gap: '0.75rem',
-              }}>
+            <div className='flex flex-wrap items-center gap-3'>
               <h1
-                className='rdb-display'
-                style={{
-                  fontSize: 'clamp(2rem, 5vw, 3.25rem)',
-                  fontWeight: 800,
-                  letterSpacing: '-0.03em',
-                  color: '#F0F6FF',
-                  lineHeight: 1.05,
-                }}>
+                className={`${syne.className} text-[clamp(2rem,5vw,3.25rem)] font-extrabold tracking-[-0.03em] text-[#F0F6FF] leading-[1.05]`}>
                 {data.projectName}
               </h1>
 
-              <span
-                className='rdb-display'
-                style={{
-                  padding: '4px 14px',
-                  background: 'rgba(59,130,246,0.08)',
-                  border: '0.5px solid rgba(59,130,246,0.22)',
-                  borderRadius: 100,
-                  fontSize: 15,
-                  fontWeight: 700,
-                  letterSpacing: '0.12em',
-                  color: '#60A5FA',
-                  textTransform: 'uppercase',
-                }}>
+              <span className='px-3.5 py-1 bg-[#3B82F6]/10 border border-[#3B82F6]/20 rounded-full text-[15px] font-bold tracking-[0.12em] text-[#60A5FA] uppercase'>
                 ${data.ticker}
               </span>
 
               <span
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 5,
-                  padding: '4px 12px',
-                  background: 'rgba(255,255,255,0.04)',
-                  border: '0.5px solid rgba(255,255,255,0.07)',
-                  borderRadius: 100,
-                  fontFamily: "'Inter', sans-serif",
-                  fontSize: 12,
-                  fontWeight: 500,
-                  letterSpacing: '0.06em',
-                  color: '#6B8CAE',
-                  textTransform: 'uppercase',
-                }}>
+                className={`inline-flex items-center gap-1.25 px-3 py-1 bg-white/5 border border-white/10 rounded-full text-xs font-medium tracking-[0.06em] text-[#6B8CAE] uppercase`}>
                 <Globe
                   size={11}
-                  style={{ opacity: 0.7 }}
+                  className='opacity-70'
                 />
                 {data.category}
               </span>
             </div>
 
             {/* AI Verified badge */}
-            <div style={{ position: 'relative', display: 'inline-block' }}>
+            <div className='relative inline-block'>
               <button
-                className='rdb-sig-badge'
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#34D399]/10 hover:bg-[#34D399]/20 border border-[#34D399]/20 rounded-full cursor-pointer transition-colors text-[10px] font-medium tracking-[0.12em] uppercase text-[#34D399] ${dmMono.className}`}
                 onMouseEnter={() => setShowSignature(true)}
                 onMouseLeave={() => setShowSignature(false)}>
                 <ShieldCheck size={12} />
@@ -265,32 +105,13 @@ export default function ReportDashboard({ data }: { data: any }) {
               </button>
 
               {showSignature && (
-                <div
-                  style={{
-                    position: 'absolute',
-                    left: 0,
-                    top: 36,
-                    zIndex: 20,
-                    width: 320,
-                    padding: '12px 14px',
-                    background: '#0F1928',
-                    border: '0.5px solid rgba(255,255,255,0.1)',
-                    borderRadius: 12,
-                    boxShadow: '0 24px 48px rgba(0,0,0,0.5)',
-                  }}>
+                <div className='absolute left-0 top-9 z-20 w-80 px-3.5 py-3 bg-[#0F1928] border border-white/10 rounded-xl shadow-[0_24px_48px_rgba(0,0,0,0.5)]'>
                   <div
-                    className='rdb-label'
-                    style={{ marginBottom: 6 }}>
+                    className={`text-[10px] font-normal tracking-[0.18em] uppercase text-[#4A6080] mb-1.5 ${dmMono.className}`}>
                     Cryptographic Signature
                   </div>
                   <div
-                    className='rdb-mono'
-                    style={{
-                      fontSize: 11,
-                      color: '#3B82F6',
-                      wordBreak: 'break-all',
-                      lineHeight: 1.6,
-                    }}>
+                    className={`text-[11px] text-[#3B82F6] break-all leading-[1.6] ${syne.className}`}>
                     {data.signature || '0xAI_VERIFIED_HASH_UNAVAILABLE_IN_DB'}
                   </div>
                 </div>
@@ -299,29 +120,15 @@ export default function ReportDashboard({ data }: { data: any }) {
           </div>
 
           {/* Meta info */}
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 6,
-              alignItems: 'flex-end',
-            }}>
+          <div className='flex flex-col gap-1.5 items-end'>
             <span
-              style={{ display: 'flex', alignItems: 'center', gap: 5 }}
-              className='rdb-label'>
+              className={`flex items-center gap-1.25 text-[10px] font-normal tracking-[0.18em] uppercase text-[#4A6080] ${dmMono.className}`}>
               <Clock size={10} /> Updated: Just Now
             </span>
             <span
-              style={{ display: 'flex', alignItems: 'center', gap: 5 }}
-              className='rdb-label'>
+              className={`flex items-center gap-1.25 text-[10px] font-normal tracking-[0.18em] uppercase text-[#4A6080] ${dmMono.className}`}>
               <Fingerprint size={10} />
-              <span
-                className='rdb-mono'
-                style={{
-                  fontSize: 10,
-                  color: '#4A6080',
-                  letterSpacing: '0.08em',
-                }}>
+              <span className='text-[10px] text-[#4A6080] tracking-[0.08em]'>
                 {data.authorId?.slice(0, 8)}...
               </span>
             </span>
@@ -329,100 +136,53 @@ export default function ReportDashboard({ data }: { data: any }) {
         </header>
 
         {/* ── SUMMARY + SCORE ROW ─────────────────────────────────────── */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr auto',
-            gap: '1.25rem',
-            alignItems: 'stretch',
-          }}>
+        <div className='grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-5 items-stretch'>
           {/* Executive Summary */}
-          <div
-            className='rdb-card'
-            style={{
-              position: 'relative',
-              padding: '1.75rem 2rem',
-              overflow: 'hidden',
-            }}>
-            {/* subtle top accent line */}
+          <div className='relative px-8 py-7 overflow-hidden bg-[#0F1928] border border-white/5 rounded-2xl'>
+            {/* Noise Overlay */}
             <div
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: '2rem',
-                right: '2rem',
-                height: 1,
-                background:
-                  'linear-gradient(90deg, transparent, rgba(59,130,246,0.3), transparent)',
-              }}
+              className='absolute inset-0 opacity-40 pointer-events-none'
+              style={{ backgroundImage: noiseImage }}
             />
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 7,
-                marginBottom: '1rem',
-              }}>
+
+            {/* subtle top accent line */}
+            <div className='absolute top-0 left-8 right-8 h-px bg-gradient-to-r from-transparent via-[#3B82F6]/30 to-transparent' />
+
+            <div className='flex items-center gap-2 mb-4 relative z-10'>
               <Info
                 size={13}
                 color='#3B82F6'
               />
-              <span className='rdb-label'>Executive Summary</span>
+              <span
+                className={`text-[10px] font-normal tracking-[0.18em] uppercase text-[#4A6080] ${dmMono.className}`}>
+                Executive Summary
+              </span>
             </div>
-            <p
-              className='rdb-body'
-              style={{
-                fontSize: 15,
-                lineHeight: 1.75,
-                color: '#C8D8E8',
-                fontWeight: 400,
-              }}>
+            <p className='text-[15px] leading-[1.75] text-[#C8D8E8] font-normal relative z-10'>
               {data.executiveSummary}
             </p>
           </div>
 
           {/* Score + Risk stack */}
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '1.25rem',
-              minWidth: 220,
-            }}>
+          <div className='flex flex-col gap-5 min-w-55'>
             {/* Trust Score radial */}
-            <div
-              className='rdb-card'
-              style={{
-                position: 'relative',
-                flex: 1,
-                padding: '1.5rem 1.25rem',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                overflow: 'hidden',
-              }}>
+            <div className='relative flex-1 p-6 flex flex-col items-center justify-center overflow-hidden bg-[#0F1928] border border-white/5 rounded-2xl'>
               <div
-                style={{
-                  position: 'absolute',
-                  inset: 0,
-                  background: `radial-gradient(ellipse at 50% 60%, ${getScoreGlow(data.trustScore)}, transparent 70%)`,
-                  borderRadius: 'inherit',
-                }}
+                className='absolute inset-0 opacity-40 pointer-events-none'
+                style={{ backgroundImage: noiseImage }}
               />
               <div
+                className='absolute inset-0 rounded-2xl'
                 style={{
-                  position: 'relative',
-                  width: 108,
-                  height: 108,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}>
+                  background: `radial-gradient(ellipse at 50% 60%, ${getScoreGlow(data.trustScore)}, transparent 70%)`,
+                }}
+              />
+
+              <div className='relative w-27 h-27 flex items-center justify-center'>
                 <svg
                   width='108'
                   height='108'
-                  style={{ transform: 'rotate(-90deg)' }}>
+                  className='-rotate-90'>
                   <circle
                     cx='54'
                     cy='54'
@@ -441,85 +201,53 @@ export default function ReportDashboard({ data }: { data: any }) {
                     strokeDasharray={circumference}
                     strokeDashoffset={strokeDashoffset}
                     strokeLinecap='round'
-                    style={{
-                      transition:
-                        'stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1)',
-                    }}
+                    className='transition-[stroke-dashoffset] duration-1000 ease-in-out'
                   />
                 </svg>
-                <div
-                  style={{
-                    position: 'absolute',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                  }}>
+                <div className='absolute flex flex-col items-center'>
                   <span
-                    className='rdb-display rdb-mono'
-                    style={{
-                      fontSize: 30,
-                      fontWeight: 700,
-                      color: scoreColor,
-                      letterSpacing: '-0.04em',
-                      lineHeight: 1,
-                    }}>
+                    className={`text-[30px] font-bold tracking-[-0.04em] leading-none ${dmMono.className}`}
+                    style={{ color: scoreColor }}>
                     {data.trustScore}
                   </span>
                   <span
-                    className='rdb-label'
-                    style={{ marginTop: 2, fontSize: 8 }}>
+                    className={`text-[8px] font-normal tracking-[0.18em] uppercase text-[#4A6080] mt-0.5 ${dmMono.className}`}>
                     /100
                   </span>
                 </div>
               </div>
               <span
-                className='rdb-label'
-                style={{ marginTop: 10 }}>
+                className={`text-[10px] font-normal tracking-[0.18em] uppercase text-[#4A6080] mt-2.5 relative z-10 ${dmMono.className}`}>
                 Trust Score
               </span>
             </div>
 
             {/* Risk Level */}
             <div
-              className='rdb-card'
-              style={{
-                position: 'relative',
-                flex: 1,
-                padding: '1.25rem',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                overflow: 'hidden',
-                border: `0.5px solid ${riskColor}22`,
-              }}>
+              className='relative flex-1 p-5 flex flex-col items-center justify-center overflow-hidden rounded-2xl bg-[#0F1928]'
+              style={{ border: `0.5px solid ${riskColor}22` }}>
               <div
+                className='absolute inset-0 opacity-40 pointer-events-none z-0'
+                style={{ backgroundImage: noiseImage }}
+              />
+              <div
+                className='absolute inset-0 rounded-2xl z-0'
                 style={{
-                  position: 'absolute',
-                  inset: 0,
                   background: `radial-gradient(ellipse at 50% 100%, ${riskColor}0A, transparent 70%)`,
-                  borderRadius: 'inherit',
                 }}
               />
               <AlertTriangle
                 size={24}
                 color={riskColor}
-                style={{ marginBottom: 10 }}
+                className='mb-2.5 relative z-10'
               />
               <span
-                className='rdb-label'
-                style={{ marginBottom: 6 }}>
+                className={`text-[10px] font-normal tracking-[0.18em] uppercase text-[#4A6080] mb-1.5 relative z-10 ${dmMono.className}`}>
                 Risk Profile
               </span>
               <span
-                className='rdb-display'
-                style={{
-                  fontSize: 18,
-                  fontWeight: 800,
-                  letterSpacing: '0.1em',
-                  textTransform: 'uppercase',
-                  color: riskColor,
-                }}>
+                className='text-[18px] font-extrabold tracking-widest uppercase relative z-10'
+                style={{ color: riskColor }}>
                 {data.riskLevel}
               </span>
             </div>
@@ -527,128 +255,70 @@ export default function ReportDashboard({ data }: { data: any }) {
         </div>
 
         {/* ── SECURITY + TEAM ROW ─────────────────────────────────────── */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: '1.25rem',
-          }}>
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-5'>
           {/* Security */}
-          <div
-            className='rdb-card'
-            style={{
-              position: 'relative',
-              padding: '1.5rem 1.75rem',
-              overflow: 'hidden',
-            }}>
+          <div className='relative px-7 py-6 overflow-hidden bg-[#0F1928] border border-white/5 rounded-2xl'>
             <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 7,
-                marginBottom: '1.25rem',
-              }}>
+              className='absolute inset-0 opacity-40 pointer-events-none'
+              style={{ backgroundImage: noiseImage }}
+            />
+
+            <div className='flex items-center gap-2 mb-5 relative z-10'>
               <ShieldCheck
                 size={13}
                 color='#3B82F6'
               />
-              <span className='rdb-label'>Security Audit</span>
+              <span
+                className={`text-[10px] font-normal tracking-[0.18em] uppercase text-[#4A6080] ${dmMono.className}`}>
+                Security Audit
+              </span>
             </div>
 
-            <div style={{ marginBottom: '1rem' }}>
+            <div className='mb-4 relative z-10'>
               {data.security.audited ? (
                 <div
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 7,
-                    padding: '6px 14px',
-                    background: 'rgba(52,211,153,0.07)',
-                    border: '0.5px solid rgba(52,211,153,0.2)',
-                    borderRadius: 100,
-                    fontFamily: "'DM Mono', monospace",
-                    fontSize: 11,
-                    fontWeight: 500,
-                    letterSpacing: '0.1em',
-                    textTransform: 'uppercase',
-                    color: '#34D399',
-                  }}>
+                  className={`inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#34D399]/10 border border-[#34D399]/20 rounded-full text-[11px] font-medium tracking-widest uppercase text-[#34D399] ${dmMono.className}`}>
                   <CheckCircle2 size={13} /> Audited & Verified
                 </div>
               ) : (
                 <div
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 7,
-                    padding: '6px 14px',
-                    background: 'rgba(255,77,107,0.07)',
-                    border: '0.5px solid rgba(255,77,107,0.2)',
-                    borderRadius: 100,
-                    fontFamily: "'DM Mono', monospace",
-                    fontSize: 11,
-                    fontWeight: 500,
-                    letterSpacing: '0.1em',
-                    textTransform: 'uppercase',
-                    color: '#ff4d6b',
-                  }}>
+                  className={`inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#ff4d6b]/10 border border-[#ff4d6b]/20 rounded-full text-[11px] font-medium tracking-widest uppercase text-[#ff4d6b] ${dmMono.className}`}>
                   <XCircle size={13} /> Unaudited
                 </div>
               )}
             </div>
 
-            <p
-              className='rdb-body'
-              style={{
-                fontSize: 13,
-                lineHeight: 1.65,
-                color: '#6B8CAE',
-                paddingLeft: '0.85rem',
-                borderLeft: '1.5px solid rgba(255,255,255,0.07)',
-              }}>
+            <p className='text-[13px] leading-[1.65] text-[#6B8CAE] pl-3.5 border-l-[1.5px] border-white/10 relative z-10'>
               {data.security.details}
             </p>
           </div>
 
           {/* Team & Backers */}
-          <div
-            className='rdb-card'
-            style={{
-              position: 'relative',
-              padding: '1.5rem 1.75rem',
-              overflow: 'hidden',
-            }}>
+          <div className='relative px-7 py-6 overflow-hidden bg-[#0F1928] border border-white/5 rounded-2xl'>
             <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 7,
-                marginBottom: '1.25rem',
-              }}>
+              className='absolute inset-0 opacity-40 pointer-events-none'
+              style={{ backgroundImage: noiseImage }}
+            />
+
+            <div className='flex items-center gap-2 mb-5 relative z-10'>
               <Users
                 size={13}
                 color='#3B82F6'
               />
-              <span className='rdb-label'>Identity & Backers</span>
+              <span
+                className={`text-[10px] font-normal tracking-[0.18em] uppercase text-[#4A6080] ${dmMono.className}`}>
+                Identity & Backers
+              </span>
             </div>
 
-            <div style={{ marginBottom: '1rem' }}>
+            <div className='mb-4 relative z-10'>
               <div
+                className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[11px] font-medium tracking-widest uppercase ${dmMono.className}`}
                 style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 7,
-                  padding: '6px 14px',
                   background: data.teamAndBackers.is_doxxed
                     ? 'rgba(52,211,153,0.07)'
                     : 'rgba(255,222,115,0.07)',
                   border: `0.5px solid ${data.teamAndBackers.is_doxxed ? 'rgba(52,211,153,0.2)' : 'rgba(255,222,115,0.2)'}`,
-                  borderRadius: 100,
-                  fontFamily: "'DM Mono', monospace",
-                  fontSize: 11,
-                  fontWeight: 500,
-                  letterSpacing: '0.1em',
-                  textTransform: 'uppercase',
                   color: data.teamAndBackers.is_doxxed ? '#34D399' : '#ffde73',
                 }}>
                 {data.teamAndBackers.is_doxxed ? (
@@ -663,137 +333,78 @@ export default function ReportDashboard({ data }: { data: any }) {
               </div>
             </div>
 
-            <p
-              className='rdb-body'
-              style={{
-                fontSize: 13,
-                lineHeight: 1.65,
-                color: '#6B8CAE',
-                paddingLeft: '0.85rem',
-                borderLeft: '1.5px solid rgba(255,255,255,0.07)',
-              }}>
+            <p className='text-[13px] leading-[1.65] text-[#6B8CAE] pl-3.5 border-l-[1.5px] border-white/10 relative z-10'>
               {data.teamAndBackers.details}
             </p>
           </div>
         </div>
 
         {/* ── TOKENOMICS ─────────────────────────────────────────────── */}
-        <div
-          className='rdb-card'
-          style={{
-            position: 'relative',
-            padding: '1.75rem 2rem',
-            overflow: 'hidden',
-          }}>
-          {/* Header row */}
+        <div className='relative px-8 py-7 overflow-hidden bg-[#0F1928] border border-white/5 rounded-2xl'>
           <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'flex-end',
-              marginBottom: '1.75rem',
-              flexWrap: 'wrap',
-              gap: '1rem',
-            }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+            className='absolute inset-0 opacity-40 pointer-events-none'
+            style={{ backgroundImage: noiseImage }}
+          />
+
+          {/* Header row */}
+          <div className='flex justify-between items-end mb-7 flex-wrap gap-4 relative z-10'>
+            <div className='flex items-center gap-2'>
               <PieChart
                 size={13}
                 color='#3B82F6'
               />
-              <span className='rdb-label'>Tokenomics Distribution</span>
+              <span
+                className={`text-[10px] font-normal tracking-[0.18em] uppercase text-[#4A6080] ${dmMono.className}`}>
+                Tokenomics Distribution
+              </span>
             </div>
-            <div style={{ textAlign: 'right' }}>
+            <div className='text-right'>
               <div
-                className='rdb-label'
-                style={{ marginBottom: 4 }}>
+                className={`text-[10px] font-normal tracking-[0.18em] uppercase text-[#4A6080] mb-1 ${dmMono.className}`}>
                 Total Supply
               </div>
               <div
-                className='rdb-display rdb-mono'
-                style={{
-                  fontSize: 18,
-                  fontWeight: 600,
-                  color: '#E2E8F0',
-                  letterSpacing: '-0.02em',
-                }}>
+                className={`text-[18px] font-semibold text-[#E2E8F0] tracking-[-0.02em] ${dmMono.className}`}>
                 {data.tokenomics.total_supply}
               </div>
             </div>
           </div>
 
           {/* Allocation bar */}
-          <div
-            className='rdb-alloc-bar'
-            style={{
-              display: 'flex',
-              height: 10,
-              borderRadius: 100,
-              overflow: 'hidden',
-              background: 'rgba(255,255,255,0.04)',
-              marginBottom: '1.5rem',
-              gap: 1,
-            }}>
+          <div className='flex h-2.5 rounded-full overflow-hidden bg-white/5 mb-6 gap-px relative z-10'>
             {data.tokenomics.allocations.map((alloc: any, i: number) => (
               <div
                 key={i}
                 title={`${alloc.category}: ${alloc.percentage}%`}
+                className='opacity-85 hover:opacity-100 hover:brightness-110 cursor-crosshair transition-all duration-200'
                 style={{
                   width: `${alloc.percentage}%`,
                   background: allocColors[i % allocColors.length],
-                  opacity: 0.85,
-                  cursor: 'crosshair',
-                  transition: 'opacity 0.2s',
                 }}
               />
             ))}
           </div>
 
           {/* Legend */}
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
-              gap: '1rem',
-              marginBottom: '1.75rem',
-            }}>
+          <div className='grid grid-cols-[repeat(auto-fit,minmax(120px,1fr))] gap-4 mb-7 relative z-10'>
             {data.tokenomics.allocations.map((alloc: any, i: number) => (
               <div
                 key={i}
-                style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                className='flex flex-col gap-1'>
+                <div className='flex items-center gap-1.5'>
                   <div
-                    style={{
-                      width: 6,
-                      height: 6,
-                      borderRadius: 2,
-                      background: allocColors[i % allocColors.length],
-                      flexShrink: 0,
-                    }}
+                    className='w-1.5 h-1.5 rounded-sm shrink-0'
+                    style={{ background: allocColors[i % allocColors.length] }}
                   />
                   <span
-                    className='rdb-label'
-                    style={{
-                      fontSize: 9,
-                      color: '#4A6080',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
-                    }}>
+                    className={`text-[9px] font-normal tracking-[0.18em] uppercase text-[#4A6080] overflow-hidden text-ellipsis whitespace-nowrap ${dmMono.className}`}>
                     {alloc.category}
                   </span>
                 </div>
                 <span
-                  className='rdb-display rdb-mono'
-                  style={{
-                    fontSize: 22,
-                    fontWeight: 700,
-                    color: '#D8E8F5',
-                    letterSpacing: '-0.03em',
-                    lineHeight: 1,
-                  }}>
+                  className={`text-[22px] font-bold text-[#D8E8F5] tracking-[-0.03em] leading-none ${dmMono.className}`}>
                   {alloc.percentage}
-                  <span
-                    style={{ fontSize: 13, fontWeight: 400, color: '#4A6080' }}>
+                  <span className='text-[13px] font-normal text-[#4A6080] ml-0.5'>
                     %
                   </span>
                 </span>
@@ -802,21 +413,16 @@ export default function ReportDashboard({ data }: { data: any }) {
           </div>
 
           {/* Utility tags */}
-          <div
-            style={{
-              paddingTop: '1.25rem',
-              borderTop: '0.5px solid rgba(255,255,255,0.05)',
-            }}>
+          <div className='pt-5 border-t border-white/5 relative z-10'>
             <div
-              className='rdb-label'
-              style={{ marginBottom: 10 }}>
+              className={`text-[10px] font-normal tracking-[0.18em] uppercase text-[#4A6080] mb-2.5 ${dmMono.className}`}>
               Core Utility
             </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            <div className='flex flex-wrap gap-2'>
               {data.tokenomics.utility.map((u: string, i: number) => (
                 <span
                   key={i}
-                  className='rdb-utility-tag'>
+                  className={`px-3.5 py-1.5 bg-[#0A1020] border border-white/5 rounded-full text-[11px] font-normal tracking-[0.08em] uppercase text-[#7A9BB8] ${dmMono.className}`}>
                   {u}
                 </span>
               ))}
@@ -824,64 +430,33 @@ export default function ReportDashboard({ data }: { data: any }) {
           </div>
         </div>
 
-        {/* ── FLAGS + CATALYSTS ─────────────────────────────────────── */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: '1.25rem',
-          }}>
+        {/* ── flags + CATALYSTS ─────────────────────────────────────── */}
+        <div className='grid grid-cols-1 md:grid-cols-3 gap-5'>
           {/* Green Flags */}
-          <div
-            className='rdb-card'
-            style={{
-              position: 'relative',
-              padding: '1.5rem 1.5rem',
-              overflow: 'hidden',
-            }}>
+          <div className='relative px-6 py-6 overflow-hidden bg-[#0F1928] border border-white/5 rounded-2xl'>
             <div
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                height: 1,
-                background:
-                  'linear-gradient(90deg, transparent, rgba(52,211,153,0.3), transparent)',
-              }}
+              className='absolute inset-0 opacity-40 pointer-events-none'
+              style={{ backgroundImage: noiseImage }}
             />
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 7,
-                marginBottom: '1rem',
-              }}>
+            <div className='absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#34D399]/30 to-transparent' />
+
+            <div className='flex items-center gap-2 mb-4 relative z-10'>
               <CheckCircle2
                 size={12}
                 color='#34D399'
               />
               <span
-                className='rdb-label'
-                style={{ color: '#34D399', opacity: 0.8 }}>
+                className={`text-[10px] font-normal tracking-[0.18em] uppercase text-[#34D399]/80 ${dmMono.className}`}>
                 Positive Vectors
               </span>
             </div>
-            <div>
+
+            <div className='relative z-10'>
               {data.greenFlags.map((flag: string, i: number) => (
                 <div
                   key={i}
-                  className='rdb-flag-item'>
-                  <div
-                    style={{
-                      width: 4,
-                      height: 4,
-                      borderRadius: '50%',
-                      background: '#34D399',
-                      marginTop: 6,
-                      flexShrink: 0,
-                    }}
-                  />
+                  className='flex items-start gap-2.5 py-2.5 border-b border-white/5 last:border-0 text-sm leading-[1.55] text-[#C8D8E8]'>
+                  <div className='w-1 h-1 rounded-full bg-[#34D399] mt-1.5 shrink-0' />
                   <span>{flag}</span>
                 </div>
               ))}
@@ -889,64 +464,34 @@ export default function ReportDashboard({ data }: { data: any }) {
           </div>
 
           {/* Red Flags */}
-          <div
-            className='rdb-card'
-            style={{
-              position: 'relative',
-              padding: '1.5rem 1.5rem',
-              overflow: 'hidden',
-              border: '0.5px solid rgba(255,77,107,0.12)',
-            }}>
+          <div className='relative px-6 py-6 overflow-hidden bg-[#0F1928] border border-[#ff4d6b]/10 rounded-2xl'>
             <div
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                height: 1,
-                background:
-                  'linear-gradient(90deg, transparent, rgba(255,77,107,0.4), transparent)',
-              }}
+              className='absolute inset-0 opacity-40 pointer-events-none'
+              style={{ backgroundImage: noiseImage }}
             />
-            <div
-              style={{
-                position: 'absolute',
-                top: '-40px',
-                right: '-40px',
-                width: 140,
-                height: 140,
-                background:
-                  'radial-gradient(circle, rgba(255,77,107,0.06), transparent 70%)',
-                borderRadius: '50%',
-                pointerEvents: 'none',
-              }}
-            />
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 7,
-                marginBottom: '1rem',
-              }}>
+            <div className='absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#ff4d6b]/40 to-transparent' />
+            <div className='absolute -top-10 -right-10 w-35 h-35 bg-[radial-gradient(circle,rgba(255,77,107,0.06),transparent_70%)] rounded-full pointer-events-none' />
+
+            <div className='flex items-center gap-2 mb-4 relative z-10'>
               <AlertTriangle
                 size={12}
                 color='#ff4d6b'
               />
               <span
-                className='rdb-label'
-                style={{ color: '#ff4d6b', opacity: 0.8 }}>
+                className={`text-[10px] font-normal tracking-[0.18em] uppercase text-[#ff4d6b]/80 ${dmMono.className}`}>
                 Threat Vectors
               </span>
             </div>
-            <div style={{ position: 'relative' }}>
+
+            <div className='relative z-10'>
               {data.redFlags.map((flag: string, i: number) => (
                 <div
                   key={i}
-                  className='rdb-flag-item'>
+                  className='flex items-start gap-2.5 py-2.5 border-b border-white/5 last:border-0 text-sm leading-[1.55] text-[#C8D8E8]'>
                   <AlertTriangle
                     size={12}
                     color='#ff4d6b'
-                    style={{ marginTop: 2, flexShrink: 0 }}
+                    className='mt-0.5 shrink-0'
                   />
                   <span>{flag}</span>
                 </div>
@@ -955,56 +500,30 @@ export default function ReportDashboard({ data }: { data: any }) {
           </div>
 
           {/* Catalysts */}
-          <div
-            className='rdb-card'
-            style={{
-              position: 'relative',
-              padding: '1.5rem 1.5rem',
-              overflow: 'hidden',
-            }}>
+          <div className='relative px-6 py-6 overflow-hidden bg-[#0F1928] border border-white/5 rounded-2xl'>
             <div
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                height: 1,
-                background:
-                  'linear-gradient(90deg, transparent, rgba(59,130,246,0.3), transparent)',
-              }}
+              className='absolute inset-0 opacity-40 pointer-events-none'
+              style={{ backgroundImage: noiseImage }}
             />
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 7,
-                marginBottom: '1rem',
-              }}>
+            <div className='absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#3B82F6]/30 to-transparent' />
+
+            <div className='flex items-center gap-2 mb-4 relative z-10'>
               <TrendingUp
                 size={12}
                 color='#3B82F6'
               />
               <span
-                className='rdb-label'
-                style={{ color: '#3B82F6', opacity: 0.8 }}>
+                className={`text-[10px] font-normal tracking-[0.18em] uppercase text-[#3B82F6]/80 ${dmMono.className}`}>
                 Future Catalysts
               </span>
             </div>
-            <div>
+
+            <div className='relative z-10'>
               {data.catalysts.map((catalyst: string, i: number) => (
                 <div
                   key={i}
-                  className='rdb-catalyst-item'>
-                  <div
-                    style={{
-                      width: 1.5,
-                      alignSelf: 'stretch',
-                      background: 'rgba(59,130,246,0.25)',
-                      borderRadius: 4,
-                      flexShrink: 0,
-                      marginTop: 2,
-                    }}
-                  />
+                  className='flex items-start gap-3 py-3 border-b border-white/5 last:border-0 text-sm leading-[1.55] text-[#C8D8E8]'>
+                  <div className='w-[1.5px] self-stretch bg-[#3B82F6]/25 rounded shrink-0 mt-0.5' />
                   <span>{catalyst}</span>
                 </div>
               ))}
