@@ -5,8 +5,8 @@ import { SolanaProvider } from '@solana/react-hooks';
 
 const defaultConfig: SolanaClientConfig = {
   cluster: 'devnet',
-  rpc: 'https://api.devnet.solana.com',
-  websocket: 'wss://api.devnet.solana.com',
+  rpc: `https://solana-devnet.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`,
+  websocket: `wss://solana-devnet.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`,
 };
 
 export default function Providers({ children }: { children: React.ReactNode }) {
