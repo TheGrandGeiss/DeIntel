@@ -199,3 +199,16 @@
     height: 18px;
   }
 }
+
+.dropdown {
+  /* Hide for Firefox */
+  scrollbar-width: none;
+
+  /* Hide for IE, Edge (Legacy) */
+  -ms-overflow-style: none;
+}
+
+/* Hide for Chrome, Safari, and Opera */
+.dropdown::-webkit-scrollbar {
+  display: none;
+}
