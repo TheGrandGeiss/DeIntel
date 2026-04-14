@@ -31,50 +31,46 @@ export default function CustomWalletModal({
   const activeSession =
     wallet.status === 'connected' ? wallet.session : undefined;
 
-  useEffect(() => {
-    const signAndVerify = async () => {
-      if (
-        wallet.status === 'connected' &&
-        isWaitingForSignature &&
-        wallet.session
-      ) {
-        try {
-          if (typeof wallet.session.signMessage !== 'function') {
-            throw new Error('This wallet does not support message signing.');
-          }
-
-          const messageText = `Verify ownership of this wallet. Nonce: ${crypto.randomUUID()}`;
-          const message = new TextEncoder().encode(messageText);
-
-          const signature = await wallet.session.signMessage(message);
-
-          const response = await fetch('/api/auth/verify', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              signature: Array.from(signature),
-              message: messageText,
-              publicKey: wallet.session.account.address,
-            }),
-          });
-
-          if (response.ok) {
-            console.log('Authenticated successfully!');
-            setIsWaitingForSignature(false);
-            window.location.href = '/dashboard';
-            onClose();
-          }
-        } catch (err) {
-          console.error('Signing rejected or failed', err);
-          setIsWaitingForSignature(false);
+  const signAndVerify = async () => {
+    if (
+      wallet.status === 'connected' &&
+      isWaitingForSignature &&
+      wallet.session
+    ) {
+      try {
+        if (typeof wallet.session.signMessage !== 'function') {
+          throw new Error('This wallet does not support message signing.');
         }
-      }
-    };
 
-    signAndVerify();
-  }, [wallet.status, isWaitingForSignature, onClose, router, activeSession]);
+        const messageText = `Verify ownership of this wallet. Nonce: ${crypto.randomUUID()}`;
+        const message = new TextEncoder().encode(messageText);
+
+        const signature = await wallet.session.signMessage(message);
+
+        const response = await fetch('api/auth/verify/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            signature: Array.from(signature),
+            message: messageText,
+            publicKey: wallet.session.account.address,
+          }),
+        });
+
+        if (response.ok) {
+          console.log('Authenticated successfully!');
+          setIsWaitingForSignature(false);
+          window.location.href = '/dashboard';
+          onClose();
+        }
+      } catch (err) {
+        console.error('Signing rejected or failed', err);
+        setIsWaitingForSignature(false);
+      }
+    }
+  };
 
   useEffect(() => {
     if (wallets?.connectors) {
@@ -89,6 +85,7 @@ export default function CustomWalletModal({
       // We set this to true so the useEffect knows to trigger the signature once connected
       setIsWaitingForSignature(true);
       await connectWallet(connectorId);
+      await signAndVerify();
     } catch (err) {
       setIsWaitingForSignature(false);
       console.error('Connection failed:', err);
@@ -96,6 +93,12 @@ export default function CustomWalletModal({
       setIsConnecting(false);
     }
   }
+
+  useEffect(() => {
+    if (wallet.status === 'connected' && isWaitingForSignature) {
+      signAndVerify();
+    }
+  }, [wallet.status, isWaitingForSignature]);
 
   if (!isOpen) return null;
 
