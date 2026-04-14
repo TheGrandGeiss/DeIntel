@@ -27,6 +27,16 @@ export default function Navbar() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const handleDisconnect = async () => {
+    try {
+      await disconnectWallet(); // Disconnects Solana
+      await fetch('/api/auth/logout', { method: 'POST' }); // Kills the cookie session
+      window.location.reload(); // Hard refresh to reset the state
+    } catch (error) {
+      console.error('Failed to disconnect:', error);
+    }
+  };
+
   // Fetch reports when wallet connects
   useEffect(() => {
     if (wallet.status === 'connected') {
@@ -45,17 +55,18 @@ export default function Navbar() {
   };
 
   return (
-    <header className='fixed top-0 left-0 w-full p-6 md:px-12 flex justify-between items-center z-50 pointer-events-none'>
-      {/* Make inner elements pointer-events-auto so you can click them, 
-          but the transparent header doesn't block clicks on the page below */}
-
+    /* 
+       FIX 1: Removed 'pointer-events-none' which was causing stacking issues.
+       FIX 2: Ensured 'z-50' is set to keep the header above page content.
+    */
+    <header className='fixed top-0 left-0 w-full p-6 md:px-12 flex justify-between items-center z-50 bg-[#05050a]/80 backdrop-blur-xl border-b border-white/5'>
       <Link
-        href='/'
-        className='font-black text-2xl tracking-tighter text-white pointer-events-auto'>
+        href='/dashboard'
+        className='font-black text-2xl tracking-tighter text-white'>
         De<span className='text-blue-500'>Intel</span>
       </Link>
 
-      <div className='flex items-center gap-3 pointer-events-auto'>
+      <div className='flex items-center gap-3'>
         {wallet.status === 'connected' && wallet.session?.account?.address && (
           <div
             className='relative'
@@ -74,14 +85,19 @@ export default function Navbar() {
 
             {/* Dropdown Menu */}
             {dropdownOpen && (
-              <div className='absolute right-0 mt-3 w-72 bg-[#0A0F1E]/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2'>
+              /* FIX 3: Explicitly set z-50 here as well */
+              <div className='absolute right-0 z-50 mt-3 w-72 bg-[#0A0F1E]/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2'>
                 <div className='p-3 border-b border-white/5'>
                   <span className='text-xs font-bold text-zinc-500 uppercase tracking-widest'>
                     Recent Reports
                   </span>
                 </div>
 
-                <div className='max-h-80 overflow-y-auto p-2 space-y-1 custom-scrollbar'>
+                {/* 
+                   FIX 4: Added your '.dropdown' class here.
+                   This is the container with 'overflow-y-auto' that needs the scrollbar hidden.
+                */}
+                <div className='max-h-80 overflow-y-auto p-2 space-y-1 dropdown'>
                   {reports.length === 0 ? (
                     <div className='p-4 text-center text-sm text-zinc-500'>
                       No reports generated yet.
@@ -108,7 +124,13 @@ export default function Navbar() {
                           </div>
                         </div>
                         <div
-                          className={`text-xs font-black px-2 py-1 rounded bg-black/50 border border-white/5 ${report.trustScore >= 70 ? 'text-emerald-400' : report.trustScore >= 40 ? 'text-amber-400' : 'text-rose-400'}`}>
+                          className={`text-xs font-black px-2 py-1 rounded bg-black/50 border border-white/5 ${
+                            report.trustScore >= 70
+                              ? 'text-emerald-400'
+                              : report.trustScore >= 40
+                                ? 'text-amber-400'
+                                : 'text-rose-400'
+                          }`}>
                           {report.trustScore}
                         </div>
                       </Link>
@@ -127,7 +149,7 @@ export default function Navbar() {
         )}
 
         <button
-          onClick={() => disconnectWallet()}
+          onClick={handleDisconnect}
           className='flex items-center gap-2 text-sm font-medium text-zinc-400 hover:text-rose-400 transition-all bg-black/40 hover:bg-rose-500/10 px-4 py-2 rounded-full border border-white/10 hover:border-rose-500/30 backdrop-blur-md'>
           <LogOut size={16} />
           <span className='hidden sm:inline'>Disconnect</span>
