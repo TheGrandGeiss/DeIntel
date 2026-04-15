@@ -219,9 +219,11 @@ export async function POST(request: Request) {
         greenFlags: finalReport.green_flags,
         redFlags: finalReport.red_flags,
         security: finalReport.security,
-        teamAndBackers: finalReport.team_and_backers,
+        teamAndBackers: {
+          is_doxxed: finalReport.team_is_doxxed,
+          details: finalReport.team_details,
+        },
         tokenomics: finalReport.tokenomics,
-        teamIsDoxxed: finalReport.teamIsDoxxed,
       },
     });
 
